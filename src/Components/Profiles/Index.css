@@ -1,0 +1,88 @@
+.container{
+    margin: 30px auto;
+    width: 35%;
+    /* height: 90vh; */
+    border: 3px solid gray;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.container h1{
+    text-align: center;
+}
+
+.each-student{
+    margin: auto;
+    width: 90%;
+    padding: 10px;
+}
+
+.student-profile{
+    margin: auto;
+}
+
+.student-profile img{
+    float: left;
+    border: 1px solid black;
+    border-radius: 50%;
+    padding: 3px;
+    margin-right: 50px;
+    height: 100px;
+}
+
+.each-student{
+    border-bottom: 0.2px solid rgb(113, 119, 133);
+}
+
+.student-profile ul {
+    list-style-type: none;
+}
+
+.student-name{
+    font-weight: bold;
+    font-size: 40px;
+}
+
+.student-profile ul li {
+    font-size: 15px;
+    padding: 0.5px;
+    margin-left: 20px;
+}
+
+.student-profile ul li input{
+    border: none;
+    border-bottom: 1px solid gray;
+}
+
+.student-details{
+    margin-left: 20px;
+}
+
+.search-form input{
+    border: none;
+    border-bottom: 1px solid gray;
+    padding: 5px;
+    margin: 10px;
+}
+
+.plus-minus-btn {
+    border: none;
+    background-color: white;
+    font-size: 20px;
+    color: rgb(180, 170, 170);
+}
+
+.plus-minus-btn:hover{
+    cursor: pointer;
+}
+
+/* .buttons {
+    position: absolute;
+    left: 510px;
+    top: 5px;
+} */
+
+.grades-li{
+    list-style-type: none;
+    margin-left: 160px;
+}
