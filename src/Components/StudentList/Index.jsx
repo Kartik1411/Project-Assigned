@@ -5,7 +5,7 @@ function StudentList(props) {
 
     const student = props.student;
     const tag = props.tags;
-    const tagDispatch = props.tagDispatch;
+    const setTag = props.setTag;
 
     const [showPlusBtn, setShowPlusBtn] = useState(true);
     const [showMinusBtn, setShowMinusBtn] = useState(false);
@@ -30,14 +30,6 @@ function StudentList(props) {
         setShowMinusBtn(!showMinusBtn)
     };
 
-    const onChangeTag = (e) => {
-        tagDispatch({
-            type: "INPUT",
-            tagId: e.target.id,
-            tagName: e.target.value
-        })
-    }
-
     return (
         <>
             <div className="each-student" >
@@ -50,13 +42,17 @@ function StudentList(props) {
                             <li>Company: {student.company}</li>
                             <li>Skill: {student.skill}</li>
                             <li>Average: {getAverage(student.grades)} %</li>
-                            <li>
-
+                            <li >
+                            {student.tags && student.tags.length > 0
+                                ? student.tags.map((tag, index) => <button key={index}>{tag}</button>)
+                                : ""}
                             </li>
                             <li>
-                                <form onSubmit={props.onAddTag}>
-                                    <input id={student.id} type="text" value={tag.tagName} placeholder='add new tag' onChange={onChangeTag}/>
-                                    <button id={student.id}>Add Tag</button>
+                                <form onSubmit={(e) => props.onAddTag(e, tag, student, setTag)}>
+                                    <input type="text" value={tag} placeholder='add new tag' onChange={(e) => setTag(e.target.value)}/>
+                                    <br />
+                                    <br />
+                                    <button className="add-tag">Add Tag</button>
                                 </form>
                             </li>
                         </ul>

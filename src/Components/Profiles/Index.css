@@ -45,17 +45,17 @@
 
 .student-profile ul li {
     font-size: 15px;
-    padding: 0.5px;
+    padding: 2px;
     margin-left: 20px;
 }
 
-.student-profile ul li input{
+.student-profile ul li form input{
     border: none;
     border-bottom: 1px solid gray;
 }
 
 .student-details{
-    margin-left: 20px;
+    margin-left: 100px;
 }
 
 .search-form input{
@@ -63,6 +63,10 @@
     border-bottom: 1px solid gray;
     padding: 5px;
     margin: 10px;
+}
+
+.add-tag:hover{
+    cursor: pointer;
 }
 
 .plus-minus-btn {
@@ -75,12 +79,6 @@
 .plus-minus-btn:hover{
     cursor: pointer;
 }
-
-/* .buttons {
-    position: absolute;
-    left: 510px;
-    top: 5px;
-} */
 
 .grades-li{
     list-style-type: none;

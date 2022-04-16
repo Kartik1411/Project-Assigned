@@ -1,4 +1,4 @@
-import React, {useContext, useReducer} from 'react';
+import React, {useContext, useReducer, useState} from 'react';
 import './Index.css';
 
 import StudentList from '../StudentList/Index';
@@ -7,15 +7,8 @@ import { StudentsContext } from '../../App';
 
 const initialSearchValues = {
     searchByName: "",
-    // searchByTag: "",
+    searchByTag: "",
 } 
-
-const initialtagValue = {
-    tagName: "",
-    tagId: ""
-}
-
-let tagArray = [];
 
 const searchReducer = (state, action) => {
     if(action.type === "INPUT"){
@@ -27,31 +20,11 @@ const searchReducer = (state, action) => {
     return state;
 } 
 
-const tagReducer = (state, action) => {
-    if(action.type === "INPUT"){
-        return{
-            ...state,
-            tagName: action.tagName,
-            tagId: action.tagId
-        }
-    }   
-    if(action.type === "SUBMIT"){
-        return{
-            ...state,
-            ...action.value
-        }
-    }
-    return state;
-}
-
 function Profiles() {
 
-    const [students, setStudents] = useContext(StudentsContext);
+    const [students] = useContext(StudentsContext);
 
-    const [tagState, tagDispatch] = useReducer(
-        tagReducer,
-        initialtagValue
-    )    
+    const [tag, setTag] = useState(""); 
 
     const [searchValues, searchDispatch] = useReducer(
         searchReducer,
@@ -62,7 +35,7 @@ function Profiles() {
         ((!searchValues.searchByName.toLowerCase() || student.firstName.toLowerCase().indexOf(searchValues.searchByName) !== -1) ||
             (!searchValues.searchByName.toLowerCase() || student.lastName.toLowerCase().indexOf(searchValues.searchByName) !== -1) 
         ) 
-        //&& (!searchValues.searchByTag.toLowerCase() || student.tag.toLowerCase().indexOf(searchValues.searchByTag) !== -1)
+        && (!searchValues.searchByTag.toLowerCase() || tag.toLowerCase().indexOf(searchValues.searchByTag) !== -1) 
     );
 
     const onChange = (e) => {
@@ -73,19 +46,19 @@ function Profiles() {
         })
     }
 
-    const addTag = (e) => {
-        e.preventDefault();
-        const clickedStudentID = students.findIndex((student) => student.id === tagState.tagId) 
-        const studentsWithTags = [...students];
-        tagArray.push(tagState.tagName);
-        studentsWithTags[clickedStudentID] = {...studentsWithTags[clickedStudentID],  "tags": tagArray}
-        setStudents(studentsWithTags)
+    const addTag = (event, tag, student, setTag) => {
+        event.preventDefault();
 
-        tagDispatch({
-            type: "SUBMIT",
-            value: initialtagValue
-        })
-    }
+        if (tag === "") return;
+    
+        if (student.tags) {
+            student.tags.push(tag);
+        } else {
+            student.tags = [tag];
+        }
+
+        setTag("");
+    };
 
     return (
         <div className='container'>
@@ -97,7 +70,7 @@ function Profiles() {
             </form>
 
             <form className='search-form'>
-                <input type="text" id="searchByName" placeholder='Search by Tag' value={searchValues.searchByTag} onChange={onChange}/>
+                <input type="text" id="searchByTag" placeholder='Search by Tag' value={searchValues.searchByTag} onChange={onChange}/>
             </form>
 
             <hr />
@@ -105,7 +78,7 @@ function Profiles() {
             {
                 filteredData?.map((student, key) => {
                     return(
-                        <StudentList key={key} student={student} tags={tagState} tagDispatch={tagDispatch} onAddTag={addTag}/>
+                        <StudentList key={key} student={student} tags={tag} setTag={setTag} onAddTag={addTag}/>
                     )
                 })
             }
