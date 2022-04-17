@@ -25,18 +25,63 @@ function Profiles() {
     const [students] = useContext(StudentsContext);
 
     const [tag, setTag] = useState(""); 
+    const [filterByTag, setFilterByTag] = useState("");
+    const [filterByTagResults, setFilterByTagResults] = useState([]);
+    // console.log('filterByTagResults: ', filterByTagResults);
 
     const [searchValues, searchDispatch] = useReducer(
         searchReducer,
         initialSearchValues
     )
 
+    const getStudentsWithTags = (students) => {
+        let studentsWithTag = [];
+    
+        for (const student of students) {
+            if (student.tags) {
+                studentsWithTag.push(student);
+            }
+        }
+    
+        return studentsWithTag;
+    };
+
+
+    const filterStudentsByTag = (tag, students, setFilterByTagResults) => {
+        if (tag === "") {
+            setFilterByTagResults([]);
+        }
+
+        const studentsWithTag = getStudentsWithTags(students);
+    
+        if (tag === "" || studentsWithTag === []) return;
+
+        const searchResult = [];
+        const data = tag.toLowerCase();
+
+        for (const student of studentsWithTag) {
+            const tags = student.tags;
+            for (const tag of tags) {
+                if (
+                    [...tag].includes(data) ||
+                    tag === data ||
+                    tag.split(" ").includes(data)
+                ) {
+                    searchResult.push(student);
+                }
+            }
+        }
+    
+        // console.log('searchResult: ', searchResult);
+        setFilterByTagResults(searchResult);
+    };
+
     const filteredData = students?.filter((student) =>
         ((!searchValues.searchByName.toLowerCase() || student.firstName.toLowerCase().indexOf(searchValues.searchByName) !== -1) ||
             (!searchValues.searchByName.toLowerCase() || student.lastName.toLowerCase().indexOf(searchValues.searchByName) !== -1) 
-        ) 
-        && (!searchValues.searchByTag.toLowerCase() || tag.toLowerCase().indexOf(searchValues.searchByTag) !== -1) 
-    );
+            ) 
+            && filterByTagResults 
+        );
 
     const onChange = (e) => {
         searchDispatch({
@@ -70,7 +115,10 @@ function Profiles() {
             </form>
 
             <form className='search-form'>
-                <input type="text" id="searchByTag" placeholder='Search by Tag' value={searchValues.searchByTag} onChange={onChange}/>
+                <input type="text" id="filterByTag" placeholder='Search by Tag' value={filterByTag} 
+                    onChange={(e) => setFilterByTag(e.target.value)}
+                    onKeyUp={(e) => filterStudentsByTag(e.target.value, students, setFilterByTagResults)}
+                />
             </form>
 
             <hr />
