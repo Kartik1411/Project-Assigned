@@ -1,137 +1,145 @@
-import React, {useContext, useReducer, useState} from 'react';
-import './Index.css';
+import React, { useContext, useReducer } from "react";
+import "./Index.css";
 
-import StudentList from '../StudentList/Index';
+import StudentList from "../StudentList/Index";
 
-import { StudentsContext } from '../../App';
+import { StudentsContext } from "../../App";
 
 const initialSearchValues = {
-    searchByName: "",
-    searchByTag: "",
-} 
+  searchByName: "",
+  searchByTag: "",
+};
+
+const initialtagValue = {
+  tagName: "",
+  tagId: "",
+};
+
+let tagArray = [];
 
 const searchReducer = (state, action) => {
-    if(action.type === "INPUT"){
-        return{
-            ...state,
-            [action.id]: action.value
-        }
-    }
-    return state;
-} 
+  if (action.type === "INPUT") {
+    return {
+      ...state,
+      [action.id]: action.value,
+    };
+  }
+  return state;
+};
+
+const tagReducer = (state, action) => {
+  if (action.type === "INPUT") {
+    return {
+      ...state,
+      tagName: action.tagName,
+      tagId: action.tagId,
+    };
+  }
+  if (action.type === "SUBMIT") {
+    return {
+      ...state,
+      ...action.value,
+    };
+  }
+  return state;
+};
 
 function Profiles() {
+  const [students, setStudents] = useContext(StudentsContext);
 
-    const [students] = useContext(StudentsContext);
+  const [searchValues, searchDispatch] = useReducer(
+    searchReducer,
+    initialSearchValues
+  );
 
-    const [tag, setTag] = useState(""); 
-    const [filterByTag, setFilterByTag] = useState("");
-    const [filterByTagResults, setFilterByTagResults] = useState([]);
-    // console.log('filterByTagResults: ', filterByTagResults);
+  const [tagState, tagDispatch] = useReducer(tagReducer, initialtagValue);
 
-    const [searchValues, searchDispatch] = useReducer(
-        searchReducer,
-        initialSearchValues
-    )
+  const filteredData = students?.filter(
+    (student) =>
+      !searchValues.searchByName.toLowerCase() ||
+      student.firstName.toLowerCase().indexOf(searchValues.searchByName) !==
+        -1 ||
+      !searchValues.searchByName.toLowerCase() ||
+      student.lastName.toLowerCase().indexOf(searchValues.searchByName) !== -1
+  );
 
-    const getStudentsWithTags = (students) => {
-        let studentsWithTag = [];
-    
-        for (const student of students) {
-            if (student.tags) {
-                studentsWithTag.push(student);
-            }
-        }
-    
-        return studentsWithTag;
+  const onChange = (e) => {
+    searchDispatch({
+      type: "INPUT",
+      id: e.target.id,
+      value: e.target.value,
+    });
+  };
+
+  const addTag = (e) => {
+    e.preventDefault();
+    const clickedStudentID = students.findIndex(
+      (student) => student.id === tagState.tagId
+    );
+    const studentsWithTags = [...students];
+    tagArray.push(tagState.tagName);
+    studentsWithTags[clickedStudentID] = {
+      ...studentsWithTags[clickedStudentID],
+      tags: tagArray,
     };
+    setStudents(studentsWithTags);
 
+    tagDispatch({
+      type: "SUBMIT",
+      value: initialtagValue,
+    });
+  };
 
-    const filterStudentsByTag = (tag, students, setFilterByTagResults) => {
-        if (tag === "") {
-            setFilterByTagResults([]);
-        }
+  const onChangeTag = (e) => {
+    tagDispatch({
+      type: "INPUT",
+      tagId: e.target.id,
+      tagName: e.target.value,
+    });
+  };
 
-        const studentsWithTag = getStudentsWithTags(students);
-    
-        if (tag === "" || studentsWithTag === []) return;
+  return (
+    <div className="container">
+      <h1>Students Details</h1>
 
-        const searchResult = [];
-        const data = tag.toLowerCase();
+      <form className="search-form">
+        <input
+          type="text"
+          id="searchByName"
+          placeholder="Search by Name"
+          value={searchValues.searchByName}
+          onChange={onChange}
+        />
+      </form>
 
-        for (const student of studentsWithTag) {
-            const tags = student.tags;
-            for (const tag of tags) {
-                if (
-                    [...tag].includes(data) ||
-                    tag === data ||
-                    tag.split(" ").includes(data)
-                ) {
-                    searchResult.push(student);
-                }
-            }
-        }
-    
-        // console.log('searchResult: ', searchResult);
-        setFilterByTagResults(searchResult);
-    };
+      {/* <form className="search-form">
+        <input
+          type="text"
+          id="filterByTag"
+          placeholder="Search by Tag"
+          value={filterByTag}
+          onChange={(e) => setFilterByTag(e.target.value)}
+          onKeyUp={(e) =>
+            filterStudentsByTag(e.target.value, students, setFilterByTagResults)
+          }
+        />
+      </form> */}
 
-    const filteredData = students?.filter((student) =>
-        ((!searchValues.searchByName.toLowerCase() || student.firstName.toLowerCase().indexOf(searchValues.searchByName) !== -1) ||
-            (!searchValues.searchByName.toLowerCase() || student.lastName.toLowerCase().indexOf(searchValues.searchByName) !== -1) 
-            ) 
-            && filterByTagResults 
+      <hr />
+
+      {filteredData?.map((student, key) => {
+        return (
+          <StudentList
+            key={key}
+            student={student}
+            tags={tagState}
+            onAddTag={addTag}
+            onChangeTag={onChangeTag}
+          />
         );
-
-    const onChange = (e) => {
-        searchDispatch({
-            type: "INPUT",
-            id: e.target.id,
-            value: e.target.value
-        })
-    }
-
-    const addTag = (event, tag, student, setTag) => {
-        event.preventDefault();
-
-        if (tag === "") return;
-    
-        if (student.tags) {
-            student.tags.push(tag);
-        } else {
-            student.tags = [tag];
-        }
-
-        setTag("");
-    };
-
-    return (
-        <div className='container'>
-
-            <h1>Students Details</h1>
-
-            <form className='search-form'>
-                <input type="text" id="searchByName" placeholder='Search by Name' value={searchValues.searchByName} onChange={onChange}/>
-            </form>
-
-            <form className='search-form'>
-                <input type="text" id="filterByTag" placeholder='Search by Tag' value={filterByTag} 
-                    onChange={(e) => setFilterByTag(e.target.value)}
-                    onKeyUp={(e) => filterStudentsByTag(e.target.value, students, setFilterByTagResults)}
-                />
-            </form>
-
-            <hr />
-
-            {
-                filteredData?.map((student, key) => {
-                    return(
-                        <StudentList key={key} student={student} tags={tag} setTag={setTag} onAddTag={addTag}/>
-                    )
-                })
-            }
-        </div>
-    )
+      })}
+    </div>
+  );
 }
 
 export default Profiles;
